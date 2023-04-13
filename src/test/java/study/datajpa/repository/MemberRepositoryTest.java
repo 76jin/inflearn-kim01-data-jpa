@@ -1,6 +1,5 @@
 package study.datajpa.repository;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +10,6 @@ import study.datajpa.entity.Member;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -60,5 +58,29 @@ class MemberRepositoryTest {
 
         long deletedCount = memberRepository.count();
         assertThat(deletedCount).isEqualTo(0);
+    }
+
+    @Test
+    void testFindByUsernameAndAgeGreaterThan() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("AAA", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> result = memberRepository.findByUsernameAndAgeGreaterThan("AAA", 15);
+
+        assertThat(result.get(0).getUsername()).isEqualTo("AAA");
+        assertThat(result.get(0).getAge()).isEqualTo(20);
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    @Test
+    void testFindHelloBy() {
+        List<Member> result = memberRepository.findHelloBy(); // check sql
+    }
+
+    @Test
+    void testFindTopHello3By() {
+        List<Member> result = memberRepository.findTop3Hello3By(); // check sql
     }
 }
