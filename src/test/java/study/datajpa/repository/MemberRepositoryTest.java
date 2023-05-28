@@ -83,4 +83,17 @@ class MemberRepositoryTest {
     void testFindTopHello3By() {
         List<Member> result = memberRepository.findTop3Hello3By(); // check sql
     }
+
+    @Test
+    void testFindByUsername() {
+        Member member1 = new Member("AAA", 10);
+        memberRepository.save(member1);
+
+        List<Member> result = memberRepository.findByUsername(member1.getUsername());
+
+        assertThat(result.get(0).getUsername()).isEqualTo(member1.getUsername());
+        assertThat(result.get(0).getAge()).isEqualTo(member1.getAge());
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0)).isEqualTo(member1);
+    }
 }
