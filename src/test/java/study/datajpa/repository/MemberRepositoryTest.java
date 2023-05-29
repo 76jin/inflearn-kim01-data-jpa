@@ -298,4 +298,45 @@ class MemberRepositoryTest {
 
         // thten
     }
+
+    @Test
+    void queryHint() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        // when
+//        Member findMember = memberRepository.findById(member1.getId()).get();
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+
+        em.flush(); //Update Query 실행X
+
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.Direction.DESC, "username");
+        Page<Member> page = memberRepository.findPageReadOnlyByUsername("member1", pageRequest);
+        findMember.setUsername("member2");
+
+        em.flush(); //Update Query 실행X
+
+        List<Member> content = page.getContent();
+        long totalElements = page.getTotalElements();
+        for (Member member : content) {
+            System.out.println("member = " + member);
+        }
+        System.out.println("totalElements = " + totalElements);
+    }
+
+    @Test
+    void lock() {
+        // given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        // when//        Member findMember = memberRepository.findById(member1.getId()).get();
+        List<Member> findMember = memberRepository.findLockByUsername("member1");
+    }
 }
