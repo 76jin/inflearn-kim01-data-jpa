@@ -3,6 +3,10 @@ package study.datajpa.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -184,5 +188,56 @@ class MemberRepositoryTest {
         System.out.println("## emptyMember:" + empty);
         System.out.println("## optionalEmptyMember:" + optionalEmpty);
 
+    }
+
+    @Test
+    void paging() {
+        // given
+        for (int i = 1; i <= 5; i++) {
+            memberRepository.save(new Member("member" + i, 10));
+        }
+        int age = 10;
+        int offset = 0;
+        int limit = 3;
+        PageRequest pageRequest = PageRequest.of(offset, limit, Sort.Direction.DESC, "username");
+
+        // when
+        Page<Member> page = memberRepository.findByAge(age, pageRequest);
+        Slice<Member> memberSlice = memberRepository.findMemberSliceByAge(age, pageRequest);
+        List<Member> memberList = memberRepository.findMemberListByAge(age, pageRequest);
+
+        Page<Member> memberQuery = memberRepository.findMemberQueryByAge(age, pageRequest);
+        List<Member> membersTop = memberRepository.findTop4ByAge(age, Sort.by(Sort.Direction.DESC, "username"));
+
+        Page<MemberDto> toMap = page.map(m -> new MemberDto(m.getId(), m.getUsername(), "teamA"));
+
+        // then
+        List<Member> content = page.getContent();
+        long totalElements = page.getTotalElements();
+
+        assertThat(content.size()).isEqualTo(3);
+        assertThat(totalElements).isEqualTo(5);
+        assertThat(page.getNumber()).isEqualTo(0);
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+
+        for (Member member : content) {
+            System.out.println("[Page] member = " + member);
+        }
+        System.out.println("totalElements = " + totalElements);
+
+        for (Member member : memberSlice) {
+            System.out.println("[Slice] member = " + member);
+        }
+        for (Member member : memberList) {
+            System.out.println("[List] member = " + member);
+        }
+        for (Member member : membersTop) {
+            System.out.println("[TOP] member = " + member);
+        }
+        for (MemberDto dto : toMap) {
+            System.out.println("[DTO] dto = " + dto);
+        }
     }
 }
