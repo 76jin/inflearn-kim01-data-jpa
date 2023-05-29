@@ -13,6 +13,8 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+//import javax.persistence.EntityManager;
+//import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,8 @@ class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;
     @Autowired TeamRepository teamRepository;
+//    @PersistenceContext
+//    EntityManager em;
 
     @Test
     void testMember() {
@@ -239,5 +243,25 @@ class MemberRepositoryTest {
         for (MemberDto dto : toMap) {
             System.out.println("[DTO] dto = " + dto);
         }
+    }
+
+    @Test
+    void bulkUpdate() {
+        // given
+        for (int i = 1; i <= 5; i++) {
+            memberRepository.save(new Member("member" + i, 10 * i));
+        }
+
+        // when
+        int resultCount = memberRepository.bulkAgePlus(30);
+//        em.flush(); // JPQL은 실행하기 직전에 영속성 컨텍스트를 자동으로 flush 한다. (save 메소드 실행 직전)
+//        em.clear();
+
+        List<Member> result = memberRepository.findByUsername("member5");
+        Member member5 = result.get(0);
+        System.out.println("member5 = " + member5);
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
     }
 }
