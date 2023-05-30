@@ -31,6 +31,9 @@ class MemberRepositoryTest {
     @PersistenceContext
     EntityManager em;
 
+    @Autowired MemberCommandRepository memberCommandRepository;
+    @Autowired MemberQueryRepository memberQueryRepository;
+
     @Test
     void testMember() {
         Member member = new Member("memberA");
@@ -338,5 +341,35 @@ class MemberRepositoryTest {
 
         // when//        Member findMember = memberRepository.findById(member1.getId()).get();
         List<Member> findMember = memberRepository.findLockByUsername("member1");
+    }
+
+    @Test
+    void callCustom() {
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> members = memberRepository.findMemberCustom();
+        for (Member member : members) {
+            System.out.println("member = " + member);
+        }
+    }
+
+    @Test
+    void customRepositoryClass() {
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        Member member3 = new Member("member3", 30);
+        memberCommandRepository.save(member3);
+
+        List<Member> members = memberQueryRepository.findAllMembers();
+
+        for (Member member : members) {
+            System.out.println("member = " + member);
+        }
     }
 }
